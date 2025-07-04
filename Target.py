@@ -83,7 +83,9 @@ while True:
     
     # Output se il comando è PKENC
     elif cmd == "PKENC" and len(parts) > 1:
-        received_key = conn.recv(1024)
+        received_key = conn.recv(4096)
+        if received_key is not None:
+            print("Key received.")
         public_key = rsa.PublicKey.load_pkcs1(received_key)
         output = cyph_file_asym(parts[1], public_key)
         
