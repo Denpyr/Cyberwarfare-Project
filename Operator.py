@@ -34,11 +34,10 @@ while True:
 
     # Inizializzazione comando
     parts = command.split()
-    cmd = command.split()[0].upper()
+    cmd = parts[0].upper()
     
     # Inizializzazione chiavi
     sym_key = None
-  
     private_key = None
     
     # Invia la chiave pubblica e crea la privata [CIFRATURA ASIMMETRICA]
@@ -53,34 +52,26 @@ while True:
         print (response)
         sym_key = s.recv(4096)
         print("Symmetric key received.")
-    
-    # Riceve il nome del file
-    #header_enc = s.recv(1024)
         
     # Riceve l'output
     output = s.recv(4096)
     
     # Ouput se il comando è INVIA
-    if output.startswith(b"FILENAME:"):
-        header, file_data = output.split(b"\n", 1)
-        file_name = header.decode().split(":", 1)[1].strip()
+    if cmd == "INVIA":
+        file_name = parts[1]
         filepath = os.path.join(folder_path, file_name)
-        print(f"File received: {file_name}, saved in {filepath}")
-
-        # Scrive il file in modalità binaria
         with open(filepath, "wb") as f:
-            f.write(file_data)
+            f.write(output)
+            print("[FILE RECEIVED] File saved as: {filepath}")
             
     # Output se il comando è CIFRA
-    elif output.startswith(b"enc_") and cmd == "CIFRA":
-        header_enc, data_to_decrypt = output.split(b"\n", 1)
-        new_header = header_enc.decode()
-        file_name = new_header.strip()
+    elif cmd == "CIFRA":
+        file_name = "enc_" + parts[1]
         filepath = os.path.join(folder_path, file_name)
 
         if sym_key is not None:
             fernet = Fernet(sym_key)
-            sym_decrypted = fernet.decrypt(data_to_decrypt)
+            sym_decrypted = fernet.decrypt(output)
             with open(filepath, "wb") as f:
                 f.write(sym_decrypted)
                 print(f"[DECRYPTED FILE] File saved as: {filepath}")
@@ -95,6 +86,7 @@ while True:
             asym_decrypted = rsa.decrypt(output, private_key)
             with open(filepath, "wb") as f:
                 f.write(asym_decrypted)
+                print(f"[ASYMMETRIC FILE] File saved as: {filepath}")
              
         
     else:

