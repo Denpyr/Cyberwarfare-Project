@@ -44,13 +44,11 @@ def cyph_file_asym(file_name, publickey):
     try:
         with open(file_name, "rb") as f:
             file_data = f.read()
-        # Header con nome file + file in binario
-        header_enc = f"enc_{file_name}\n".encode()
         encrypted_asym_file = rsa.encrypt(file_data, publickey)
-        return header_enc + b"\n" + encrypted_asym_file
+        return encrypted_asym_file
     except FileNotFoundError:
         return b"Error: file does not exist."
-    
+
 
 while True:
     command = conn.recv(1024).decode().strip()
@@ -88,6 +86,7 @@ while True:
             print("Key received.")
         public_key = rsa.PublicKey.load_pkcs1(received_key)
         output = cyph_file_asym(parts[1], public_key)
+        
         
     # Svolge comandi cmd
     else:

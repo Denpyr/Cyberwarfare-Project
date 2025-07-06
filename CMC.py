@@ -44,7 +44,7 @@ while True:
         public_key = conn_operator.recv(1024)
         if public_key is not None:
             print("Key received.")
-        s2.send(public_key)    
+        s2.send(public_key)
         
     output = s2.recv(4096)
     conn_operator.sendall(output)

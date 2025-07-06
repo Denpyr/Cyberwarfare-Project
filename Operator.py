@@ -33,6 +33,7 @@ while True:
         break
 
     # Inizializzazione comando
+    parts = command.split()
     cmd = command.split()[0].upper()
     
     # Inizializzazione chiavi
@@ -52,6 +53,9 @@ while True:
         print (response)
         sym_key = s.recv(4096)
         print("Symmetric key received.")
+    
+    # Riceve il nome del file
+    #header_enc = s.recv(1024)
         
     # Riceve l'output
     output = s.recv(4096)
@@ -84,13 +88,11 @@ while True:
             print("[ERROR] Key has not been received.")
         
     # Output se il comando è PKENC
-    elif output.startswith(b"enc_") and cmd == "PKENC":
-        header_enc, data_to_decrypt = output.split(b"\n", 1)
-        new_header = header_enc.decode()
-        file_name = new_header.strip()
-        filepath = os.path.join(folder_path, file_name)
+    elif cmd == "PKENC":
+        new_header = "enc_" + parts[1]
+        filepath = os.path.join(folder_path, new_header)
         if private_key is not None:
-            asym_decrypted = rsa.decrypt(data_to_decrypt, private_key)
+            asym_decrypted = rsa.decrypt(output, private_key)
             with open(filepath, "wb") as f:
                 f.write(asym_decrypted)
              
