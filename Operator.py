@@ -47,9 +47,6 @@ while True:
     
     # Prepara a ricevere ACK e chiave in caso sia CIFRA
     if cmd == "CIFRA":
-        syn_ack  = s.recv(1024)
-        response = syn_ack.decode()
-        print (response)
         sym_key = s.recv(4096)
         print("Symmetric key received.")
         

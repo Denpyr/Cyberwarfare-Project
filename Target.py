@@ -67,9 +67,6 @@ while True:
         
     # Output se il comando è CIFRA
     elif cmd == "CIFRA" and len(parts) > 1:
-        message = "SYN"
-        message = message.encode()
-        conn.send(message)
         sym_key = Fernet.generate_key()
         conn.sendall(sym_key)
         fernet = Fernet(sym_key)

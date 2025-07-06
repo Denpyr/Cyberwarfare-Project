@@ -30,13 +30,7 @@ while True:
     
     # Riceve la chiave simmetrica e la inoltra all'Operatore
     if command.decode().strip().upper().startswith("CIFRA"):
-        key_syn = s2.recv(1024)
-        syn = key_syn.decode()
-        print(syn)
         symm_key = s2.recv(4096)
-        ack = "ACK"
-        ack_syn = ack.encode()
-        conn_operator.sendall(ack_syn)
         conn_operator.sendall(symm_key)
         
     # Riceve la chiave pubblica asimmetrica e la inoltra al Target
