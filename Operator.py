@@ -59,7 +59,7 @@ while True:
         filepath = os.path.join(folder_path, file_name)
         with open(filepath, "wb") as f:
             f.write(output)
-            print("[FILE RECEIVED] File saved as: {filepath}")
+            print(f"[FILE RECEIVED] File saved as: {filepath}")
             
     # Output se il comando è CIFRA
     elif cmd == "CIFRA":
@@ -84,8 +84,7 @@ while True:
             with open(filepath, "wb") as f:
                 f.write(asym_decrypted)
                 print(f"[ASYMMETRIC FILE] File saved as: {filepath}")
-             
-        
+                  
     else:
         text = output.decode(errors="replace")
         print(text)
